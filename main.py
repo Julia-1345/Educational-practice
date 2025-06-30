@@ -80,6 +80,30 @@ def rsa_decrypt(ciphertext, privkey):
     print(f"Расшифрованное сообщение m = c^d mod n = {ciphertext}^{d} mod {n} = {plaintext}")
     return plaintext
 
+def diffie_hellman():
+    p = int(input('Введите простое число p (модуль): '))
+    g = int(input('Введите генератор g по модулю p: '))
+
+    if not is_prime(p):
+        raise ValueError(f"p={p} не простое, нужен простой модуль")
+
+    a = int(input('Выберите секретное целое a (ваш приватный ключ): '))
+    b = int(input('Выберите секретное целое b (секрет собеседника): '))
+
+    A = pow(g, a, p)
+    print(f"Публичный ключ A = g^a mod p = {g}^{a} mod {p} = {A}")
+    B = pow(g, b, p)
+    print(f"Публичный ключ B = g^b mod p = {g}^{b} mod {p} = {B}")
+
+    shared1 = pow(B, a, p)
+    print(f"Общий секрет (сторона 1) s = B^a mod p = {B}^{a} mod {p} = {shared1}")
+    shared2 = pow(A, b, p)
+    print(f"Общий секрет (сторона 2) s = A^b mod p = {A}^{b} mod {p} = {shared2}")
+
+    if shared1 != shared2:
+        raise Exception('Ошибка: секреты не совпадают')
+    return shared1
+
 def main():
     print('--- RSA Encryption ---')
     pubkey, privkey = generate_rsa_keys()
@@ -88,7 +112,10 @@ def main():
     c = rsa_encrypt(m, pubkey)
     m2 = rsa_decrypt(c, privkey)
     print(f"Оригинал: {m}, Расшифровано: {m2}")
+
     print('\n--- Diffie-Hellman Key Exchange ---')
+    secret = diffie_hellman()
+    print(f"Успешно установлен общий секрет: {secret}")
 
 if __name__ == '__main__':
     main()
